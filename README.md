@@ -4,7 +4,7 @@ More information can be found on the [website of this project](https://oxr.eng.o
 
 # Authors
 
-- Jen Weigand (Development of constitutive models)
+- Jens Wiegand (Development of constitutive models)
 - John Donovan (Development of D3Plot interface)
 - Mattia Montanari (Principal investigator)
 
