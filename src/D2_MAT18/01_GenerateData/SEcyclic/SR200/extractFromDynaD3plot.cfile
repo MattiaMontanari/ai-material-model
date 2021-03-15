@@ -1,0 +1,37 @@
+open d3plot "d3plot"  
+ac  
+genselect label off
+genselect target element
+genselect element add solid 1/F5/0 
+etime 7 
+addplot 
+etime 9 
+xyplot 1 savefile ms_csv "plasticity.csv" 1 all 
+deletewin 1  
+etime 1 
+addplot 
+etime 2 
+addplot 
+etime 3 
+addplot 
+etime 4 
+addplot 
+etime 5 
+addplot 
+etime 6
+xyplot 1 savefile ms_csv "element_stress.csv" 1 all  
+deletewin 1  
+etime 45 
+addplot 
+etime 46 
+addplot 
+etime 47 
+addplot 
+etime 48 
+addplot 
+etime 49
+addplot 
+etime 50
+xyplot 1 savefile ms_csv "element_strain.csv" 1 all  
+deletewin 1  
+exit 
