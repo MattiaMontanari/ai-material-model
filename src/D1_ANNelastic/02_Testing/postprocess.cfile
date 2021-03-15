@@ -1,0 +1,28 @@
+$# LS-PrePost command file created by LS-PrePost(R) V4.5.16 - 23Mar2018 -64bit-Linux
+$# Created on Sep-22-2020 (15:01:37)
+open d3plot "d3plot"
+ac
+splitwin 2x1
+splitwin 1x2
+splitwin allwin on
+splitwin win 2
+open d3plot "/home/jens/DataJens/AAM/LSDYNA/NUMERICAL_DATA/CALIB/CANTILEVER/MAT18_elastic/d3plot"
+ac
+state -1;
+fringe 7
+pfringe
+range dynamic;
+range avgfrng none
+range level 10;
+range pal update;
+range dynamic;
+range actpart;
+print png "EpsPlastComp.png" gamma 1.00 opaque enlisted "OGL1x2" 
+fringe 9
+pfringe
+range dynamic;
+range level 10;
+range pal update;
+range dynamic;
+range actpart;
+print png "SigEffComp.png" gamma 1.00 opaque enlisted "OGL1x2" 
