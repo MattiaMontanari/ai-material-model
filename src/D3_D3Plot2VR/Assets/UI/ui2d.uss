@@ -1,0 +1,112 @@
+.unity-button {
+    margin: 1px;
+    margin-bottom: 16px;
+    margin-top: 16px;
+    padding: 10px 10px 19px;
+    background-color: rgba(0, 0, 0, 0.59);
+    border-left-color: rgb(152, 152, 152);
+    border-right-color: rgb(152, 152, 152);
+    border-top-color: rgb(152, 152, 152);
+    border-bottom-color: rgb(152, 152, 152);
+    border-left-width: 4px;
+    border-right-width: 4px;
+    border-top-width: 4px;
+    border-bottom-width: 4px;
+    border-radius: 8px;
+    width: 20%;
+}
+
+VisualElement {
+    -unity-font: url('/Assets/Fonts/bahnschrift.ttf');
+    font-size: 36px;
+    color: aliceblue;
+}
+
+.unity-text-element {
+    -unity-text-align: middle-center;
+}
+
+.unity-button:active {
+    border-color: rgb(255, 255, 255);
+}
+
+.unity-button:hover {
+    background-color: rgba(80, 80, 80, 0.59);
+}
+
+.unity-button:disabled {
+    color: rgb(100, 100, 100);
+}
+
+.unity-toggle:active {
+    border-color: rgb(255, 255, 255);
+}
+
+.unity-toggle:hover {
+    background-color: rgba(80, 80, 80, 0.59);
+}
+
+.unity-toggle:checked {
+    background-color: rgba(80, 80, 80, 0.59);
+    border-color: rgb(255, 255, 255);
+}
+
+.unity-toggle:disabled {
+    color: rgb(100, 100, 100);
+}
+
+.button-container {
+    flex-shrink: 1;
+    flex-grow: 0;
+    height: auto;
+    margin-top: 5%;
+    margin-left: 5%;
+    align-items: flex-start;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.toolbar-container {
+    flex-shrink: 1;
+    flex-grow: 0;
+    height: auto;
+    margin-top: 5%;
+    margin-left: 5%;
+    align-items: flex-start;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.tool-label {
+    margin-bottom: 16px;
+    margin-top: 16px;
+    padding: 10px 10px 19px;
+}
+
+.tool-button {
+    width: auto;
+    margin-bottom: 16px;
+    margin-top: 16px;
+    margin-right: 16px;
+    padding: 10px 10px 19px;
+    background-color: rgba(0, 0, 0, 0.59);
+    border-left-color: rgb(152, 152, 152);
+    border-right-color: rgb(152, 152, 152);
+    border-top-color: rgb(152, 152, 152);
+    border-bottom-color: rgb(152, 152, 152);
+    border-left-width: 4px;
+    border-right-width: 4px;
+    border-top-width: 4px;
+    border-bottom-width: 4px;
+    border-radius: 8px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+#plot-info {
+    flex-wrap: wrap;
+    white-space: normal;
+    height: 20%;
+    -unity-text-align: upper-left;
+    margin-left: 5%;
+}

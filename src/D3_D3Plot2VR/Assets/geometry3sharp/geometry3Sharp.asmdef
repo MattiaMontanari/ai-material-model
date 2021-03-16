@@ -1,0 +1,8 @@
+{
+    "name": "com.gradientspace.geometry3sharp",
+    "references": [],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true
+}

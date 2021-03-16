@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="ui2d.uss" />
+    <ui:VisualElement class="button-container">
+        <ui:Button name="load-file" text="Choose D3Plot file..." />
+        <ui:Label text="Title:\nRun time:\nVersion" name="plot-info" />
+    </ui:VisualElement>
+    <ui:VisualElement class="toolbar-container">
+        <ui:Label text="Up axis:" class="tool-label" />
+        <ui:Toggle text="+X" name="up-x" class="tool-button" />
+        <ui:Toggle text="+Y" name="up-y" value="true" class="tool-button" />
+        <ui:Toggle text="+Z" name="up-z" class="tool-button" />
+    </ui:VisualElement>
+    <ui:VisualElement class="button-container">
+        <ui:Button name="start" text="Start VR" />
+    </ui:VisualElement>
+    <ui:VisualElement style="flex-shrink: 0; flex-grow: 1; align-items: flex-end; justify-content: flex-end;">
+        <ui:VisualElement style="background-image: url(&apos;/Assets/Textures/geospark_logo_border_l.png&apos;); width: 512px; height: 128px; -unity-background-scale-mode: scale-to-fit; margin-bottom: 64px; margin-right: 64px; justify-content: flex-end; align-items: flex-end; flex-direction: row;" />
+    </ui:VisualElement>
+</ui:UXML>
