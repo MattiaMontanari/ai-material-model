@@ -1,0 +1,28 @@
+$# LS-PrePost command file created by LS-PrePost(R) V4.5.16 - 23Mar2018 -64bit-Linux
+$# Created on Sep-22-2020 (15:01:37)
+open d3plot "UMAT/d3plot"
+splitwin 1x2
+splitwin allwin on
+splitwin win 2
+open d3plot "MAT18/d3plot"
+state -1;
+fringe 7
+pfringe
+range dynamic;
+range avgfrng none
+range level 10;
+range pal update;
+range dynamic;
+range actpart;
+$print png "EpsPlastComp.png" gamma 1.00 opaque enlisted "OGL1x2" 
+$print png "EpsPlastComp.png" LANDSCAPE gamma 1.00 opaque VEC A4 dpi 300 enlisted "OGL1x2"
+fringe 9
+pfringe
+range dynamic;
+range level 10;
+range pal update;
+range dynamic;
+range actpart;
+$print png "SigEffComp.png" gamma 1.00 opaque enlisted "OGL1x2" 
+$print png "SigEffComp.png" LANDSCAPE gamma 1.00 opaque VEC A4 dpi 300 enlisted "OGL1x2"
+$exit
