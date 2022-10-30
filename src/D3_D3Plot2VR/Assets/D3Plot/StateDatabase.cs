@@ -40,6 +40,42 @@ namespace D3Plot {
 
         public int[] ElementMaterial => _elementMaterial;
 
+        private readonly struct HexahedralFace {
+            public readonly int4 indices;
+            public readonly int4 faceIdx;
+            public readonly int  material;
+
+            public HexahedralFace(int4 i, int m) {
+                            indices = i;
+                            material = m;
+                            int a = i.x;
+                            int b = i.y;
+                            int c = i.z;
+                            int d = i.w;
+                            
+                            if (a > c) {
+                                Swap(ref a, ref c);
+                            }
+                            if (a > b) {
+                                Swap(ref a, ref b);
+                            }
+                            if (b > c) {
+                                Swap(ref b, ref c);
+                            }
+
+                            faceIdx = new int4(a, b, c, d);
+                                }
+            public class WingedFaceComparer : IEqualityComparer<HexahedralFace> {
+                public bool Equals(HexahedralFace x, HexahedralFace y) {
+                    return x.faceIdx.Equals(y.faceIdx);
+                }
+
+                public int GetHashCode(HexahedralFace obj) {
+                    return obj.GetHashCode();
+                }
+
+            }
+        }
         private readonly struct TetrahedronFace {
             public readonly int3 indices;
             public readonly int3 faceIdx;
@@ -64,27 +100,27 @@ namespace D3Plot {
 
                 faceIdx = new int3(a, b, c);
             }
-
-            private static void Swap(ref int a, ref int b) {
-                int t = a;
-                a = b;
-                b = t;
-            }
             
             public override int GetHashCode() {
                 return faceIdx.GetHashCode();
             }
+            public class WingedFaceComparer : IEqualityComparer<TetrahedronFace> {
+                public bool Equals(TetrahedronFace x, TetrahedronFace y) {
+                    return x.faceIdx.Equals(y.faceIdx);
+                }
+
+                public int GetHashCode(TetrahedronFace obj) {
+                    return obj.GetHashCode();
+                }
+            }
         }
 
-        private class WingedFaceComparer : IEqualityComparer<TetrahedronFace> {
-            public bool Equals(TetrahedronFace x, TetrahedronFace y) {
-                return x.faceIdx.Equals(y.faceIdx);
-            }
-
-            public int GetHashCode(TetrahedronFace obj) {
-                return obj.GetHashCode();
-            }
+        private static void Swap(ref int a, ref int b) {
+            int t = a;
+            a = b;
+            b = t;
         }
+            
 
         private string _headerTitle;
         private readonly List<HigherSolidElementPart> _higherSolidElementParts;
@@ -461,13 +497,9 @@ namespace D3Plot {
             }
 
             if (_controlData.nel8 >= 0) {
-                // Assumes tetrahedra.
                 _elementVertices = new int4[_controlData.nel8];
                 _elementMaterial = new int[_controlData.nel8];
                 buff = reader.ReadBytes(_controlData.nel8 * 9 * _wordSize);
-
-                HashSet<TetrahedronFace> boundaryFaces = new HashSet<TetrahedronFace>(new WingedFaceComparer());
-                _faceIdxCount = new int[_controlData.TotalMaterialCount];
 
                 for (int i = 0; i < _controlData.nel8 * 9; i += 9) {
                     int a = BitConverter.ToInt32(buff, (i + 0) * _wordSize) - 1;
@@ -475,71 +507,102 @@ namespace D3Plot {
                     int c = BitConverter.ToInt32(buff, (i + 2) * _wordSize) - 1;
                     int d = BitConverter.ToInt32(buff, (i + 3) * _wordSize) - 1;
                     int e = BitConverter.ToInt32(buff, (i + 4) * _wordSize) - 1;
-
-                    if (d != e) {
-                        throw new UnsupportedFeatureException("Only tetrahedral elements are supported");
-                    }
-
+            
                     _elementVertices[i / 9] = new int4(a, b, c, d);
                     int material = BitConverter.ToInt32(buff, (i + 8) * _wordSize) - 1;
                     _elementMaterial[i / 9] = material;
 
-                    TetrahedronFace face = new TetrahedronFace(new int3(a, c, b), material);
-                    ++_faceIdxCount[material];
-                    if (!boundaryFaces.Add(face)) {
-                        boundaryFaces.Remove(face);
-                        --_faceIdxCount[material];
+
+                    if (d != e) {
+                        // 8 Nodes hexahedrons (*SECTION_SOLID with elform 0)
+                        int f = BitConverter.ToInt32(buff, (i + 5) * _wordSize) - 1;
+                        int g = BitConverter.ToInt32(buff, (i + 6) * _wordSize) - 1;
+                        int h = BitConverter.ToInt32(buff, (i + 7) * _wordSize) - 1;
+                        
+                        HashSet<HexahedralFace> boundaryFaces = new HashSet<HexahedralFace>(new HexahedralFace.WingedFaceComparer());
+                        _faceIdxCount = new int[_controlData.TotalMaterialCount];
+
+                        HexahedralFace face = new HexahedralFace(new int4(a, b, c, d), material );
+                        if (!boundaryFaces.Add(face)) {
+                            boundaryFaces.Remove(face);
+                            --_faceIdxCount[material];
+                        }
+
+                        // TODO: add remaining 7 faces the element.
+
+                        throw new UnsupportedFeatureException("Only tetrahedral elements are supported");
+                    } else if ( d == e) {
+                        // 4 Nodes tetrahedra.
+                        // TODO: Assert normal directions
+
+                        HashSet<TetrahedronFace> boundaryFaces = new HashSet<TetrahedronFace>(new TetrahedronFace.WingedFaceComparer());
+                        _faceIdxCount = new int[_controlData.TotalMaterialCount];
+
+                        // The four faces of the elements have nodes: [acb],[abd],[adc],[bdc]
+                        TetrahedronFace face = new TetrahedronFace(new int3(a, c, b), material);
+                        if (!boundaryFaces.Add(face)) {
+                            boundaryFaces.Remove(face);
+                            --_faceIdxCount[material];
+                        }
+                        
+                        face = new TetrahedronFace(new int3(a, b, d), material);
+                        ++_faceIdxCount[material];
+                        if (!boundaryFaces.Add(face)) {
+                            boundaryFaces.Remove(face);
+                            --_faceIdxCount[material];
+                        }
+
+                        face = new TetrahedronFace(new int3(a, d, c), material);
+                        ++_faceIdxCount[material];
+                        if (!boundaryFaces.Add(face)) {
+                            boundaryFaces.Remove(face);
+                            --_faceIdxCount[material];
+                        }
+
+                        face = new TetrahedronFace(new int3(d, b, c), material);
+                        ++_faceIdxCount[material];
+                        if (!boundaryFaces.Add(face)) {
+                            boundaryFaces.Remove(face);
+                            --_faceIdxCount[material];
+                        }
+
+                        
+
+
+                        // Expand out the boundary faces indices.
+                        List<int>[] facesIndices = new List<int>[_controlData.TotalMaterialCount];
+                        foreach (TetrahedronFace iface in boundaryFaces) {
+                            if (facesIndices[iface.material] == null) {
+                                facesIndices[iface.material] = new List<int>(_faceIdxCount[iface.material]);
+                            }
+                            
+                            facesIndices[iface.material].Add(iface.indices.x);
+                            facesIndices[iface.material].Add(iface.indices.y);
+                            facesIndices[iface.material].Add(iface.indices.z);
+                            _nodeCoordinates[iface.indices.x].materialIndex = iface.material;
+                            _nodeCoordinates[iface.indices.y].materialIndex = iface.material;
+                            _nodeCoordinates[iface.indices.z].materialIndex = iface.material;
+                        }
+
+                        if (_faceIndexBuffers != null) {
+                            for (i = 0; i < _faceIndexBuffers.Length; ++i) {
+                                _faceIndexBuffers[i]?.Release();
+                            }
+                        }
+
+                        _faceIndexBuffers = new GraphicsBuffer[facesIndices.Length];
+
+                        for (i = 0; i < facesIndices.Length; ++i) {
+                            _faceIndexBuffers[i] = new GraphicsBuffer(GraphicsBuffer.Target.Index, _faceIdxCount[i], 4);
+                            _faceIndexBuffers[i].SetData(facesIndices[i].ToArray());
+                        }
                     }
+
                     
-                    face = new TetrahedronFace(new int3(a, b, d), material);
                     ++_faceIdxCount[material];
-                    if (!boundaryFaces.Add(face)) {
-                        boundaryFaces.Remove(face);
-                        --_faceIdxCount[material];
-                    }
 
-                    face = new TetrahedronFace(new int3(a, d, c), material);
-                    ++_faceIdxCount[material];
-                    if (!boundaryFaces.Add(face)) {
-                        boundaryFaces.Remove(face);
-                        --_faceIdxCount[material];
-                    }
-
-                    face = new TetrahedronFace(new int3(d, b, c), material);
-                    ++_faceIdxCount[material];
-                    if (!boundaryFaces.Add(face)) {
-                        boundaryFaces.Remove(face);
-                        --_faceIdxCount[material];
-                    }
                 }
 
-                // Expand out the boundary faces indices.
-                List<int>[] facesIndices = new List<int>[_controlData.TotalMaterialCount];
-                foreach (TetrahedronFace face in boundaryFaces) {
-                    if (facesIndices[face.material] == null) {
-                        facesIndices[face.material] = new List<int>(_faceIdxCount[face.material]);
-                    }
-                    
-                    facesIndices[face.material].Add(face.indices.x);
-                    facesIndices[face.material].Add(face.indices.y);
-                    facesIndices[face.material].Add(face.indices.z);
-                    _nodeCoordinates[face.indices.x].materialIndex = face.material;
-                    _nodeCoordinates[face.indices.y].materialIndex = face.material;
-                    _nodeCoordinates[face.indices.z].materialIndex = face.material;
-                }
-
-                if (_faceIndexBuffers != null) {
-                    for (int i = 0; i < _faceIndexBuffers.Length; ++i) {
-                        _faceIndexBuffers[i]?.Release();
-                    }
-                }
-
-                _faceIndexBuffers = new GraphicsBuffer[facesIndices.Length];
-
-                for (int i = 0; i < facesIndices.Length; ++i) {
-                    _faceIndexBuffers[i] = new GraphicsBuffer(GraphicsBuffer.Target.Index, _faceIdxCount[i], 4);
-                    _faceIndexBuffers[i].SetData(facesIndices[i].ToArray());
-                }
 
             } else {
                 throw new UnsupportedFeatureException("Ten node solids not supported.");

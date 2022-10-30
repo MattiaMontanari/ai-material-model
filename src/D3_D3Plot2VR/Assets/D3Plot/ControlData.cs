@@ -38,7 +38,7 @@ namespace D3Plot {
         public int iu;
         public int iv;
         public int ia;
-        public int nel8;
+        public int nel8;                // Count of hex elements (may include tets too).  is also the total number of solid elements
         public int nummat8;
         public int numds;
         public int numst;
